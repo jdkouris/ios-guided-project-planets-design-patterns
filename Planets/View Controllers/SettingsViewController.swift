@@ -18,12 +18,26 @@ class SettingsViewController: UIViewController {
     }
     
     private func updateViews() {
-        let userDefaults = UserDefaults.standard
-        shouldShowPlutoSwitch.isOn = userDefaults.bool(forKey: .shouldShowPlutoKey)
+        shouldShowPlutoSwitch.isOn = UserDefaults.standard.bool(forKey: .shouldShowPlutoKey)
     }
     
     @IBAction func changeShouldShowPluto(_ sender: UISwitch) {
+        // Toggle was switched
+        // Save to user defaults
         let userDefaults = UserDefaults.standard
         userDefaults.set(sender.isOn, forKey: .shouldShowPlutoKey)
+        
+        // Notify everyone (interested) that we should change Pluto's status as a planet.
+        // 1. NotificationCenter is creating a NotificationObject with the given name.
+        // 2. (Optional) NotificationCenter is attaching an object to that NotificationObject.
+        NotificationCenter.default.post(name: .plutoPlanetStatusChanged, object: nil)
+    }
+}
+
+extension NotificationCenter {
+    func postOnMainThread(name: NSNotification.Name, object: Any?) {
+        DispatchQueue.main.async {
+            NotificationCenter.self.default.post(name: name, object: object)
+        }
     }
 }
